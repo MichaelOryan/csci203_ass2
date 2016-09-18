@@ -49,41 +49,6 @@ class Heap
         // Tell the heap that an element at an ID return from push has changed and it should reorder itself
         void resortByID(int);
 
-        // Iterator that moves through the elements in no particular order but can visit all elements in heap
-        class Iterator;
-
-        // Iterator to the "first" element
-        Iterator begin() {return Iterator(this, 0);}
-
-        // Iterator to the one past the end of the last iterator
-        Iterator end() {return Iterator(this, this->_size);}
-
-        class Iterator
-        {
-            public:
-            Iterator(){}
-            Iterator(const Iterator& iterator) {this->index = iterator.index; this->parent = iterator.parent;}
-            Iterator(Heap<T> * parent):parent(parent){}
-            Iterator(Heap<T> * parent, int index):parent(parent), index(index){}
-            ~Iterator(){}
-            T& operator*(){return this->parent->getByID(parent->_heap[index]);}
-            Iterator operator++(int){this->index++; return *this;}
-            void update(){this->parent->resortByID(parent->_heap[index]);}
-            bool operator==(const Iterator & rhs) const {return this->parent == rhs.parent && this->index == rhs.index;}
-            bool operator<(const Iterator & rhs) const {return this->parent == rhs.parent && this->index < rhs.index;}
-            Iterator operator=(const Iterator & rhs) {this->index = rhs.index; this->parent = rhs.parent; return *this;}
-            int getID() {return this->_heap[index];}
-
-            private:
-
-                Heap<T> * parent;
-                int index;
-        };
-
-    private:
-        int index;
-
-
     protected:
 
     private:

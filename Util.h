@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+
 #ifndef mycopy
 #define mycopy
 // Copy from one pointer to another of fixed size
@@ -81,38 +82,5 @@ bool ptrTargetComparitor(const T & a, const T & b)
 
 #endif
 
-template<class T, typename U>
-U findMin(const T & t)
-{
-    U _min = t[0];
-    for(int i = 1; i < t.size(); i++)
-    {
-       _min = min(_min, t[i]);
-    }
-    return _min;
-}
-
-
-template<class T>
-int findMinIndex(const T & t)
-{
-    int _min = 0;
-    for(int i = 1; i < t.size(); i++)
-    {
-       if(t[i] < t[_min])
-        {
-            _min = i;
-        }
-    }
-    return _min;
-}
-template<class T>
-void setAll(T & array, int n)
-{
-    for(int i = 0; i < array.size(); i++)
-    {
-        array[i] = n;
-    }
-}
 
 #endif // UTIL_H

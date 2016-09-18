@@ -1,425 +1,120 @@
+// Standard Library
 #include <iostream>
+#include <string>
+#include <fstream>
 
-#include <stdlib.h>
-#include <time.h>
-
-#include "Union.h"
-#include "HeapSort.h"
-#include "Vector.h"
+// Data structures
 #include "Heap.h"
-#include "Pair.h"
-#include "Graph.h"
-#include "AdjGraph.h"
-#include "BruteGraph.h"
-#include "GraphGen.h"
+#include "Array.h"
+#include "Vector.h"
+#include "Queue.h"
+
+// Project File Headers
+#include "Customer.h"
+#include "Simulation.h"
+#include "Server.h"
+#include "CustomerQueue.h"
+#include "Simulation.h"
 
 using namespace std;
 
+// Read an int from ifstream
+int readInt(ifstream &);
 
-void heapSortTest()
+// Read a customer arrival, service time from an ifstream and return a Customer object
+Customer readCustomer(ifstream &);
+
+// Main function
+int main(int argc, char *argv[])
 {
-    Vector<int> numbers;
-    numbers.push_back(4);
-    numbers.push_back(7);
-    numbers.push_back(1);
-    numbers.push_back(21);
-    numbers.push_back(87);
-    numbers.push_back(12);
-    numbers.push_back(9);
-    numbers.push_back(16);
-    numbers.push_back(3);
-    numbers.push_back(13);
+    string filename;
+    cout << "Enter filename: ";
+    cin >> filename;
 
-    for(int i = 0; i < numbers.size(); i++)
+    // input file
+    ifstream file;
+
+    // Open file
+    file.open(filename.c_str());
+
+    // Read number of servers from file
+    int servers = readInt(file);
+
+    // If there's something wrong with the file
+    if(!file.good())
     {
-        cout << numbers[i] << " ";
+        cout << "Error with file" << endl;
+        return 0;
     }
 
-    cout << endl;
+    // Create a queue of customers
+    Queue<Customer> customers;
 
-    HeapSort::heapSort(numbers, false);
+    // Read the first customer
+    Customer next = readCustomer(file);
 
-    for(int i = 0; i < numbers.size(); i++)
+    // While we have successfully read from our file
+    while(file.good())
     {
-        cout << numbers[i] << " ";
+        // Enqueue the customer read from the file
+        customers.enqueue(next);
+
+        // read another customer from the file
+        next = readCustomer(file);
+
     }
 
-    cout << endl;
+    // close file
+    file.close();
 
-}
+    cout << "\n";
+    cout << "Michael O'Ryans Queue Simulation\n";
 
-void testLink(int a, int b, Union & u)
-{
-    if(u.areLinked(a, b))
-    {
-        cout << a << " and " << b << " are linked!";
-    }
-    else
-    {
-        cout << a << " and " << b << " are not linked!";
-    }
-    cout << endl;
-}
+    // create simulation
+    Simulation sim(customers, servers, true);
 
-void unionTest()
-{
-    Union u(10);
-    cout << "Link 0, 1" << endl;
-    u.link(0, 1);
-    cout << "Link 3, 4" << endl;
-    u.link(3, 4);
-    cout << "Link 4, 5" << endl;
-    u.link(4, 5);
-    cout << "Link 7, 6" << endl;
-    u.link(7, 6);
+    // Run simulation
+    sim.startSim();
+    cout << "Simulating One Queue per server and one shared queue\n\n";
+   // write results to output
+    sim.printStats(cout);
 
-    testLink(3, 5, u);
-    testLink(9, 7, u);
-    testLink(1, 2, u);
-    testLink(0, 3, u);
+    // Seperator results
+    cout << "\n\n";
 
+    // Create simulation
+    Simulation sim2(customers, servers, false);
 
-}
+    // start sim
+    sim2.startSim();
 
-int unionTestLink(int size)
-{
-    Union u(size);
-    int count = 0;
-    int x = rand() % size;
-    int y = rand() % size;
-
-    while(x == y)
-    {
-        x = rand() % size;
-        y = rand() % size ;
-    }
-    cout << x << " " << y << endl;
-    while(!u.areLinked(x, y))
-    {
-        count++;
-        int a = rand() % size;
-        int b = rand() % size;
-        cin >> a >> b;
-
-        /*while(a == b || u.areLinked(a, b))
-        {
-            b = rand() % size ;
-        }*/
-        u.link(a, b);
-    }
-
-    return count;
-}
-
-void unionTestLarge()
-{
-    int size = 10000;
-    int total = 0;
-    int count = 0;
-    int _max = -1;
-    int _min = -1;
-    for(int i = 0; i < 100000; i++)
-    {
-        int thisCount = unionTestLink(size);
-        if(_max == -1)
-        {
-            _max = thisCount;
-        }
-        else
-        {
-            _max = _max > thisCount ? _max : thisCount;
-        }
-
-        if(_min == -1)
-        {
-            _min = thisCount;
-            cout << thisCount << endl;
-        }
-        else
-        {
-            _min = _min < thisCount ? _min : thisCount;
-        }
-
-        count++;
-        total += thisCount;
-    }
-    cout << "Max: " << _max << endl;
-    cout << "Min: " << _min << endl;
-    cout << "Avg: " << (double)total / (double)count / size * 100  << "%" << endl;
-
-}
-
-int roll(int size)
-{
-    int count = 0;
-    while(rand()%size >0)
-    {
-        count++;
-    }
-    return count;
-
-}
-
-void rollTest()
-{
-    int total = 0;
-    int count = 0;
-    int _max = -1;
-    int _min = -1;
-    for(int i = 0; i < 1000; i++)
-    {
-        int thisCount = roll(100);
-        if(_max == -1)
-        {
-            _max = thisCount;
-        }
-        else
-        {
-            _max = _max > thisCount ? _max : thisCount;
-        }
-
-        if(_min == -1)
-        {
-            _min = thisCount;
-        }
-        else
-        {
-            _min = _min < thisCount ? _min : thisCount;
-        }
-
-        count++;
-        total += thisCount;
-    }
-    cout << "Max: " << _max << endl;
-    cout << "Min: " << _min << endl;
-    cout << "Avg: " << (double)total / (double)count << endl;
-
-}
-
-/*
-void graphTest()
-{
-    Graph g(5);
-    g.addEdge(0, 1, 5);
-
-    cout << g.getWeight(0, 1) << " : " << g.getWeight(1, 0) << endl;
-    cout << g.getWeight(0, 2) << " : " << g.getWeight(1, 2) << endl;
-}
-*/
-void heapIteratorTest()
-{
-    Heap<int> h;
-    h.push(4);
-    h.push(10);
-    h.push(1);
-    h.push(20);
-    h.push(7);
-    h.push(12);
-    Heap<int>::Iterator iter = h.begin();
-    while(iter < h.end())
-    {
-        cout << *iter << " ";
-        iter++;
-    }
-    cout << endl;
-
-    h.pop();
-    h.pop();
-    h.pop();
-    iter = h.begin();
-
-    while(iter < h.end())
-    {
-        cout << *iter << " ";
-        iter++;
-    }
-    cout << endl;
-
-}
-
-void graphMinTree()
-{
-    Graph g(7);
-    g.addEdge(0, 1, 1);
-    g.addEdge(1, 2, 2);
-    g.addEdge(0, 3, 4);
-
-    g.addEdge(1, 3, 6);
-    g.addEdge(1, 4, 4);
-    g.addEdge(2, 4, 5);
-    g.addEdge(2, 5, 6);
-    g.addEdge(3, 4, 3);
-    g.addEdge(4, 5, 8);
-    g.addEdge(3, 6, 4);
-    g.addEdge(4, 6, 7);
-    g.addEdge(5, 6, 3);
-
-    Vector<Pair<int, int> > minTree = g.minTreePrim();
-    for(int i = 0; i < minTree.size(); i++)
-    {
-        cout << minTree[i].a << " " << minTree[i].b << endl;
-    }
-
-
-}
-
-void graphMinTree1()
-{
-    Graph g(5);
-    g.addEdge(0, 1, 2);
-    g.addEdge(0, 2, 6);
-    g.addEdge(0, 3, 2);
-    g.addEdge(0, 4, 1);
-    g.addEdge(1, 2, 0);
-    g.addEdge(1, 3, 8);
-    g.addEdge(1, 4, 0);
-    g.addEdge(2, 3, 0);
-    g.addEdge(2, 4, 1);
-    g.addEdge(3, 4, 2);
-
-    Vector<Pair<int, int> > minTree = g.minTreePrim();
-    for(int i = 0; i < minTree.size(); i++)
-    {
-        cout << minTree[i].a + 1 << " " << minTree[i].b  + 1<< endl;
-    }
-
-
-}
-
-void graphAdjMinTree()
-{
-    AdjGraph g(7);
-    g.addEdge(0, 1, 1);
-    g.addEdge(1, 2, 2);
-    g.addEdge(0, 3, 4);
-
-    g.addEdge(1, 3, 6);
-    g.addEdge(1, 4, 4);
-    g.addEdge(2, 4, 5);
-    g.addEdge(2, 5, 6);
-    g.addEdge(3, 4, 3);
-    g.addEdge(4, 5, 8);
-    g.addEdge(3, 6, 4);
-    g.addEdge(4, 6, 7);
-    g.addEdge(5, 6, 3);
-
-    g.print();
-    cout << endl;
-    Array<int> minTree = g.minTreePrim();
-    for(int i = 1; i < minTree.size(); i++)
-    {
-        cout << i+1 << ":" << minTree[i]+1 << endl;
-    }
-
-
-}
-
-void graphBruteMinTree()
-{
-    BruteGraph g(7);
-    g.addEdge(0, 1, 1);
-    g.addEdge(1, 2, 2);
-    g.addEdge(0, 3, 4);
-
-    g.addEdge(1, 3, 6);
-    g.addEdge(1, 4, 4);
-    g.addEdge(2, 4, 5);
-    g.addEdge(2, 5, 6);
-    g.addEdge(3, 4, 3);
-    g.addEdge(4, 5, 8);
-    g.addEdge(3, 6, 4);
-    g.addEdge(4, 6, 7);
-    g.addEdge(5, 6, 3);
-
-    //g.print();
-    Array<int> minTree = g.minTreeBrute();
-    for(int i = 1; i < minTree.size(); i++)
-    {
-        cout << i << "-" << minTree[i] << endl;
-    }
-
-
-}
-
-void graphGenTest()
-{
-    const int size = 5;
-    //GraphGen gen;
-    //Vector<Edge> edges = gen.genEdges(size);
-    AdjGraph g(size);
-    /*for(int i = 0; i < edges.size(); i++)
-    {
-        Edge nextEdge = edges[i];
-        g.addEdge(nextEdge.start, nextEdge.end, nextEdge.weight);
-    }*/
-    g.addEdge(0, 1, 2);
-    g.addEdge(0, 2, 6);
-    g.addEdge(0, 3, 2);
-    g.addEdge(0, 4, 1);
-    g.addEdge(1, 2, 0);
-    g.addEdge(1, 3, 8);
-    g.addEdge(1, 4, 0);
-    g.addEdge(2, 3, 0);
-    g.addEdge(2, 4, 1);
-    g.addEdge(3, 4, 2);
-    g.print();
-    cout << endl;
-    Array<int> minTree = g.minTreePrim();
-    for(int i = 1; i < minTree.size(); i++)
-    {
-        cout << i+1 << ":" << minTree[i]+1 << endl;
-    }
-}
-
-
-int main()
-{
-    graphMinTree1();
-    //graphGenTest();
-    //graphAdjMinTree();
-    //graphBruteMinTree();
-    return 0;
-    heapIteratorTest();
-   // graphTest();
-    //srand (time(NULL));
-    //heapSortTest();
-    //unionTest();
-    //unionTestLarge();
-    //unionTestLink(10000);
-    return 0;
-    Union u(100000);
-    u.link(0, 1);
-    u.link(0, 10);
-    u.link(12, 10);
-    u.link(2, 1);
-
-    u.link(17, 21);
-    u.link(23, 24);
-    u.link(25, 13);
-    u.link(13, 21);
-    u.link(32, 17);
-    u.link(32, 12);
-
-
-    int a = 2;
-    int b = 12;
-    if(u.areLinked(a, b))
-    {
-        cout << "Linked!" << endl;
-    }
-    else
-    {
-        cout << "Not linked!" << endl;
-    }
-    if(u.areLinked(b, a))
-    {
-        cout << "Linked!" << endl;
-    }
-    else
-    {
-        cout << "Not linked!" << endl;
-    }
-    //rollTest();
+    // Output results
+    sim2.printStats(cout);
 
     return 0;
+}
+
+// Read an int from an ifstream
+int readInt(std::ifstream & file)
+{
+    // error check here
+    int n;
+    file >> n;
+    return n;
+}
+
+// Read the next customer from a file
+Customer readCustomer(std::ifstream & file)
+{
+    // Read arrival time
+    double arrival;
+    file >> arrival;
+
+    // Read service time
+    double serviceTime;
+    file >> serviceTime;
+
+    // Create and return customer
+    return Customer(arrival, serviceTime);
+
 }

@@ -118,7 +118,7 @@ void Vector<T>::setMemSize(int size)
     Array<T> newArray(size);
 
     // Copy from the old array into the new one
-    newArray.copyFrom(this->_array, min(size, this->_array.size()));
+    newArray.copyFrom(this->_array, min(size, this->_array.getSize()));
 
     // Swap the array in the vector with the new one
     newArray.swapArrays(this->_array);
@@ -129,7 +129,7 @@ template<class T>
 void Vector<T>::grow()
 {
     // Calc new size
-    int newSize = this->_array.size() * 2;
+    int newSize = this->_array.getSize() * 2;
 
     // If we have 0 size (or less than 0) we need atleast 1 memory size
     if( newSize < 1)
@@ -191,7 +191,7 @@ template<class T>
 void Vector<T>::push_back(const T& t)
 {
     // If we have full allocated memory allocate more
-    if(this->size() >= this->_array.size())
+    if(this->size() >= this->_array.getSize())
     {
         grow();
     }
