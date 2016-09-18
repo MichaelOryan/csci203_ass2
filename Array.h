@@ -28,7 +28,7 @@ class Array
         Array<T>& operator=(const Array<T>&);
 
         // Return the size/;length of this array
-        int getSize() {return _size;}
+        int size() const {return _size;}
 
         // Copy from another array into this one. Will try and copy the enture source array.
         void copyFrom(const Array &);
